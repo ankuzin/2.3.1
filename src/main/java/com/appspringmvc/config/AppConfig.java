@@ -1,9 +1,12 @@
 package com.appspringmvc.config;
 
 import jakarta.persistence.EntityManagerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -20,7 +23,38 @@ import java.util.Properties;
 @EnableWebMvc
 @EnableTransactionManagement
 @ComponentScan(basePackages = "com.appspringmvc")
+@PropertySource("classpath:db.properties")
 public class AppConfig implements WebMvcConfigurer {
+
+    @Value("${db.url}")
+    private String dbUrl;
+
+    @Value("${db.username}")
+    private String dbUsername;
+
+    @Value("${db.password}")
+    private String dbPassword;
+
+    @Value("${hibernate.dialect}")
+    private String hibernateDialect;
+
+    @Value("${hibernate.hbm2ddl.auto}")
+    private String hbm2ddlAuto;
+
+    @Value("${hibernate.show_sql}")
+    private String showSql;
+
+    @Value("${hibernate.format_sql}")
+    private String formatSql;
+
+    @Value("${hibernate.connection.charSet}")
+    private String charSet;
+
+    @Value("${hibernate.connection.characterEncoding}")
+    private String characterEncoding;
+
+    @Value("${hibernate.connection.useUnicode}")
+    private String useUnicode;
 
     @Bean
     public InternalResourceViewResolver viewResolver() {
@@ -30,6 +64,17 @@ public class AppConfig implements WebMvcConfigurer {
         return resolver;
     }
 
+
+    @Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(dbUsername);
+        dataSource.setPassword(dbPassword);
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        return dataSource;
+    }
+
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
@@ -37,7 +82,7 @@ public class AppConfig implements WebMvcConfigurer {
         em.setPackagesToScan("com.appspringmvc.model");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        vendorAdapter.setShowSql(true);
+        vendorAdapter.setShowSql(Boolean.parseBoolean(showSql));
         vendorAdapter.setGenerateDdl(true);
         em.setJpaVendorAdapter(vendorAdapter);
         em.setJpaProperties(hibernateProperties());
@@ -53,13 +98,17 @@ public class AppConfig implements WebMvcConfigurer {
 
     private Properties hibernateProperties() {
         Properties props = new Properties();
-        props.put("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
-        props.put("hibernate.show_sql", "true");
-        props.put("hibernate.format_sql", "true");
-        props.put("hibernate.hbm2ddl.auto", "update");
-        props.put("hibernate.connection.charSet", "UTF-8");
-        props.put("hibernate.connection.characterEncoding", "UTF-8");
-        props.put("hibernate.connection.useUnicode", "true");
+        props.put("hibernate.dialect", hibernateDialect);
+        props.put("hibernate.show_sql", showSql);
+        props.put("hibernate.format_sql", formatSql);
+        props.put("hibernate.hbm2ddl.auto", hbm2ddlAuto);
+        props.put("hibernate.connection.charSet", charSet);
+        props.put("hibernate.connection.characterEncoding", characterEncoding);
+        props.put("hibernate.connection.useUnicode", useUnicode);
+        props.put("javax.persistence.jdbc.url", dbUrl);
+        props.put("javax.persistence.jdbc.user", dbUsername);
+        props.put("javax.persistence.jdbc.password", dbPassword);
+
         return props;
     }
 }

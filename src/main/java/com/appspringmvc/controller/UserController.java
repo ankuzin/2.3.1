@@ -1,5 +1,6 @@
 package com.appspringmvc.controller;
 
+import com.appspringmvc.model.User;
 import com.appspringmvc.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,21 +43,15 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public String addUser(
-            @RequestParam("name") String name,
-            @RequestParam("address") String address,
-            @RequestParam(value = "email", required = false) String email) {
-        userService.createUser(name, address, email);
+    public String addUser(User user) {
+        userService.createUser(user);
         return "redirect:/";
     }
 
     @PostMapping("/update")
-    public String updateUser(
-            @RequestParam("id") Long id,
-            @RequestParam("name") String name,
-            @RequestParam("address") String address,
-            @RequestParam(value = "email", required = false) String email) {
-        userService.updateUser(id, name, address, email);
+    public String updateUser(User user) {
+        userService.updateUser(user);
         return "redirect:/";
     }
+
 }

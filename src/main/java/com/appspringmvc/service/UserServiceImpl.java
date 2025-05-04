@@ -30,32 +30,34 @@ public class UserServiceImpl implements UserService {
         return userDao.findById(id);
     }
 
-    @Override
-    @Transactional
-    public void createUser(String name, String address, String email) {
-        User user = new User();
-        user.setName(name);
-        user.setAddress(address);
-        user.setEmail(email);
-        userDao.save(user);
-    }
 
     @Override
     @Transactional
-    public void updateUser(Long id, String name, String address, String email) {
-        User existing = userDao.findById(id);
-        if (existing != null) {
-            existing.setName(name);
-            existing.setAddress(address);
-            existing.setEmail(email);
-            userDao.update(existing);
+    public void createUser(User user) {
+        if (user != null) {
+            userDao.save(user);
         }
     }
 
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+        if (user != null && user.getId() != null) {
+            User existing = userDao.findById(user.getId());
+            if (existing != null) {
+                existing.setName(user.getName());
+                existing.setAddress(user.getAddress());
+                existing.setEmail(user.getEmail());
+                userDao.update(existing);
+            }
+        }
+    }
 
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        userDao.delete(id);
+        if (id != null) {
+            userDao.delete(id);
+        }
     }
 }
